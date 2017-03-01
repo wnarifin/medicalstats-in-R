@@ -1,5 +1,5 @@
 # n.percent
-# A convenient function to come out with n ($) side by side
+# A convenient function to come out with n (%) side by side
 # Author: Wan Nor Arifin
 library(plyr)
 n.percent = function(des) {
