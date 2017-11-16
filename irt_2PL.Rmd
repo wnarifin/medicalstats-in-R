@@ -1,0 +1,148 @@
+---
+title: "Introduction to IRT Using R (2PL)"
+author: "Wan Nor Arifin"
+date: '`r Sys.Date()`'
+output:
+  html_document:
+    fig_caption: yes
+    highlight: haddock
+    number_sections: yes
+    theme: null
+  pdf_document:
+    fig_caption: yes
+    number_sections: yes
+  tufte::tufte_handout:
+    highlight: tango
+  tufte::tufte_html:
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+library(tufte)
+library(knitr)
+knitr::opts_chunk$set(tidy = FALSE, cache.extra = packageVersion('tufte'), echo = TRUE, fig.margin=FALSE, fig.show = "asis", fig.align = "center")
+#, fig.width = 6, fig.asp = 0.618)
+```
+
+# Introduction
+Our focus is on 2PL model only. The formula is given as:
+
+$$P(\theta) = { 1\over{1+e^{-a(\theta-b)}} }$$
+
+1PL (Rasch), 3PL & 4PL have to learn on your own.
+
+A short introduction and comparison between item analysis and item response theory analysis is presented by Arifin and Yusoff (in press).
+
+# Preliminary readings
+- "The Basics of Item Response Theory" <http://echo.edres.org:8080/irt/baker/final.pdf>
+- "Applying item response theory (IRT) modeling to questionnaire development, evaluation, and refinement" <https://www.researchgate.net/profile/Maria_Edelen/publication/6432794_Applying_item_response_theory_(IRT)_modeling_to_questionnaire_development_evaluation_and_refinement/links/09e415092a186a0ccb000000.pdf>
+
+# Important cutoff values
+## Discrimination:
+- De Ayala (2008, pg. 101): Good .8 to 2.5
+- Baker (2001, pg. 35): 0: None, .01 to .34: Very low, .35 to .64: Low, .65 to 1.34: Moderate, 1.35 to 1.69: High, > 1.70: Very high, + infinity: Perfect
+- Hambleton (1991, pg. 15): Usual range 0 to 2
+
+## Difficulty:
+- De Ayala (2008, pg. 15: Theoretical range -inf to + inf; typical range -3 to +3; < -2.0: Easy; -2.0 to 2.0: Average, > 2.0: Hard
+- Hambleton (1991, pg. 13): -2 (very easy) to +2 (very difficult)
+- Baker (2001, pg. 32-33): Theoretical range -4 to +4, typical range -3 to +3, usual range -2.8 to + 2.8
+
+# Practical session
+
+## Install packages
+```{r eval=FALSE}
+install.packages(c("psych", "ltm", "irtoys", "mirt", "latticeExtra"))
+```
+## Load required libraries
+```{r message=FALSE}
+library("psych")
+library("ltm")
+library("irtoys")
+library("mirt")
+library("latticeExtra")
+```
+
+## Load data
+Download data set ["mtf.csv"]("https://wnarifin.github.io/data/mtf.csv").
+
+Read data set "mtf.csv" into "data.mtf" data frame
+```{r}
+data.mtf = read.csv("mtf.csv", header = TRUE)  # Includes headers
+head(data.mtf)  # View first 6 students in the data set
+names(data.mtf)  # List down variables in the data set
+dim(data.mtf)  # Data set consists of 10 variables and 160 students
+```
+
+## Descriptive statistics
+Percentages of correct answers (1) by questions
+```{r}
+response.frequencies(data.mtf)
+```
+
+## IRT analysis, 2-PL model
+
+Perform analysis by `ltm`
+```{r}
+# Basic statistics using ltm, focus on percentages of correct answers (1) by questions
+descript(data.mtf)
+# Perform the analysis with ltm(), and save the results in "irt.mtf"
+irt.mtf = ltm(data.mtf ~ z1, IRT.param = TRUE)
+coef(irt.mtf)  # Obtain difficulty and discrimination parameter estimates
+summary(irt.mtf)  # Obtain LL, SE & z.vals
+plot(irt.mtf, type = "ICC", legend = TRUE)  # Item Characteristic Curves
+plot(irt.mtf, type = "ICC", legend = TRUE, items=3) # Q1c
+plot(irt.mtf, type = "IIC", legend = TRUE)  # Item Information Curves
+# or Item Information Function
+plot(irt.mtf, type = "IIC", legend = TRUE, items=3) # Q1c
+plot(irt.mtf, items = 0, type = "IIC")  # Test Information Function
+information(irt.mtf, c(-3,3))  # Test information between -3 to +3 ability range
+# "irtoys" package
+plot(trf(est(data.mtf, model = "2PL", engine = "ltm")))  #Test Characteristic Curve
+# or Test Response Function
+# Item fit
+item.fit(irt.mtf)  # df = 10-2 = 8
+# Fit for margins
+margins(irt.mtf)
+table(data.mtf[,5], data.mtf[,6])
+# Personfit
+person.fit(irt.mtf)
+# Unidimensional test
+unidimTest(irt.mtf)  # This takes a long time to run
+```
+
+Repeat analysis with `mirt`
+```{r results='hide', message=FALSE, warning=FALSE}
+# "mirt" package
+# simple way to fit the model
+mirt.mtf = mirt(data.mtf, 1, itemtype = "2PL")
+```
+
+```{r}
+coef(mirt.mtf, IRTpars = T, simplify = T)
+# test info
+areainfo(mirt.mtf, c(-3,3))
+# plots
+plot(mirt.mtf, type = "trace")
+plot(mirt.mtf, type = "infotrace")
+plot(mirt.mtf, type = "info")
+plot(mirt.mtf, type = "infoSE")
+plot(mirt.mtf)
+# model fit
+M2(mirt.mtf)  # M2 nsig.
+itemfit(mirt.mtf)
+personfit(mirt.mtf)
+# reliabilities: marginal & empirical
+marginal_rxx(mirt.mtf)  # 0.5574205
+theta_se = fscores(mirt.mtf, full.scores.SE = T)
+empirical_rxx(theta_se)  # 0.5681729
+```
+Refer to Brown (2014) for explanations abour marginal and empirical reliabilities.
+
+## References
+1. Arifin, W. N., Yusoff, M. S. B. (in press). Item Response Theory for Medical Educationists. _Education in Medicine Journal_.
+2. Baker, F. B. (2001). _The basics of item response theory_ (2nd ed). USA: ERIC Clearinghouse on Assessment and Evaluation. Retrieved from: <http://echo.edres.org:8080/irt/baker/final.pdf>
+3. Brown, A. (2014). Item Response Theory approaches to test scoring and evaluating the score accuracy. In Irwing, P., Booth, T. & Hughes, D. (Eds.), _The Wiley Handbook of Psychometric Testing_. London: John Wiley & Sons. Retrieved from: <https://kar.kent.ac.uk/44777/1/Brown%20-%20IRT%20Test%20Scoring%20-%202nd%20revision%20-%20Accepted.pdf>
+4. de Ayala, R. J. (2009). _The theory and practice of item response theory_. New York: The Guilford Press.
+5. Edelen, M. O., & Reeve, B. B. (2007). Applying item response theory (IRT) modeling to questionnaire development, evaluation, and refinement. _Quality of Life Research, 16_(1), 5-18.
+6. Hambleton, R.K. and Swaminathan, H. and Rogers, H.J. (1991). _Fundamentals of Item Response Theory_. California, USA: Sage Publications.

@@ -1,0 +1,74 @@
+---
+title: "Test Layout"
+author: "wnarifin"
+date: '`r Sys.Date()`'
+output:
+  pdf_document:
+    fig_caption: yes
+    number_sections: yes
+  html_document:
+    fig_caption: yes
+    highlight: haddock
+    number_sections: yes
+    theme: null
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(echo = TRUE, fig.margin=FALSE, fig.show = "hold", fig.align = "center", out.width = "70%", fig.width = 6, fig.asp = 0.618)
+```
+
+# R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** ^[Right-upper tab] button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+summary(cars)  # summary of cars
+```
+
+# Including Plots
+
+You can also embed plots, for example:
+
+```{r, fig.cap="Pressure vs Temperature"}
+plot(pressure)
+```
+
+# Tables
+
+```{r, echo=FALSE}
+kable(
+  head(ChickWeight), caption = "Chicky information."
+)
+```
+
+```{r, echo=FALSE}
+kable(
+read.table(header = T, text = "
+      Gr     Out  n
+      Rx     Imp  8
+      Rx Not_Imp  4
+ Waiting     Imp  3
+ Waiting Not_Imp 10                   
+"),
+caption = "Patient information"
+)
+```
+
+Demographic information ^[Cannot set proper caption using markdown table approach.]
+
+Variables | Mean (SD) | n (%)
+--- | ---: | ---:
+Age | 30 (2.5) | -
+Gender (Female) | - | 60 (60%)
+Diabetes | - | 40 (40%)
+<br />
+
+```{r, echo=FALSE}
+kable(cbind("Variables" = c("Age", "Gender (Female)", "Diabetes"),
+      "Mean (SD)" = c("30 (2.5)", "-", "-"),
+      "n (%)" = c("-", "60 (60%)", "40 (40%)")
+), caption = "Demographic information.")
+```

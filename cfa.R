@@ -1,133 +1,154 @@
-#----------------------------------------------------------
-# Confirmatory Factor Analysis & Reliability (MSc Dec 2016)
-#----------------------------------------------------------
+#------------------------------------------------------------
+# Confirmatory Factor Analysis & Reliability
+#------------------------------------------------------------
+# Author: Wan Nor Arifin
+#------------------------------------------------------------
 
-# LEARNING OUTCOMES
-# 1. Perform CFA analysis, extending knowledge from EFA.
-# 2. Perform reliability analysis on the fitted model.
+# Preliminaries
 
-# Libraries
+## Load libraries
 library(foreign)
 library(psych)
-library(lavaan)
-library(semTools)
-library(semPlot)
+library(MVN)
+library(lavaan)  # for CFA
+library(semTools)  # for reliability
+library(semPlot)  # for path diagram
 
-# Load data
-data = read.spss("Attitude_Statistics v3.sav", F, T)
-names(data)
-data.cfa = data[c("Q4","Q5","Q6","Q7","Q8","Q9","Q10","Q11")]  # items from F1 & F2 only
+## Load data set
+data = read.spss("data/Attitude_Statistics v3.sav", F, T)  # Shortform
+# Include selected items from PA1 & PA2 in "data.cfa"
+data.cfa = data[c("Q4","Q5","Q6","Q7","Q8","Q9","Q10","Q11")]
+dim(data.cfa)
 names(data.cfa)
+head(data.cfa)
 
-# Descriptive statistics
-## Missing values, min-max
+# Confirmatory factor analysis
+
+## Preliminary steps
+
+# **Descriptive statistics**
 describe(data.cfa)
-## Response frequencies
 response.frequencies(data.cfa)
 
-# Multivariate normality
-mardia(data.cfa)
-# we think that the data is MV normal, very close to 5
+# **Multivariate normality**
+mardiaTest(data.cfa, qqplot = TRUE)  # `z-kurtosis` > 5, _P_ < 0.05
+# use MLR
 
-# step 1 - specify the measurement model
+## Step 1
+
+# **Specify the measurement model**
 model = "
-F1 =~ Q4 + Q5 + Q6 + Q7 + Q11
-F2 =~ Q8 + Q9 + Q10
+PA1 =~ Q4 + Q5 + Q6 + Q7 + Q11
+PA2 =~ Q8 + Q9 + Q10
 "
 
-# step 2 - fit the model
-cfa.model = cfa(model, data = data.cfa)
-# cfa.model = cfa(model, data = data.cfa, std.lv = 1)  # latent variance = 1 approach
+## Step 2
+
+# **Fit the model**
+cfa.model = cfa(model, data = data.cfa, estimator = "MLR")
+# cfa.model = cfa(model, data = data.cfa, std.lv = 1)  # factor variance = 1
 summary(cfa.model, fit.measures = T, standardized = T)
 
-# step 3 - model revision
+# **Results**
+
+# 1. Overall model fit - by fit indices.
+# Good model fit based on all indices,
+# with the exception of the upper 90% CI of robust RMSEA = 0.112.
+# There is no CFit _P_-value for robust RMSEA.
+# 
+# 3. Parameter estimates
+# Remember `Std.all`
+# All FLs > 0.5
+# and the factor correlation < 0.85.
+# There is no problem with the item quality and the factors are distinct.
+
 mi = modificationIndices(cfa.model)
-subset(mi, mi>5)  # just to view MI>5 only
-# start lower than 10 to also view relatively high mi
-# mi>10, Q9 ~~ Q10  # intentionally skip bcs problematic
-sr = residuals(cfa.model, type="standardized")  # > 2.58, Q5
+subset(mi, mi.scaled > 3.84) # since we are using MLR, look at 'mi.scaled'
+sr = residuals(cfa.model, type = "standardized")
 sr
+# 2. Localized areas of misfit
+# Modification indices:
+# Four suggested specifications with MIs > 3.84.
+# Ignore `PA1 =~  Q8` and `PA2 =~  Q5` based on content,
+# not justifiable to allow these two items specified under other factors.
+# `Q9 ~~ Q10` is justifiable, based on the wording "is important".
+# `Q5 ~~ Q11` is not justifiable.
+# Residuals:
+# Q5 has two SRs with Q11 (SR = 2.893) and Q8 (SR = 3.364).
+# Focus on Q5.
 
-# Rev 1: Q5 ~~ Q11?
-# Both from F2, reasonable by content.
+## Step 3
+
+# **Model revision**
+
+# _Revision 1_: Based on MI, `Q9 ~~ Q10`?
+
+# Both from PA2, reasonable by the wording of the questions.
 model1 = "
-F1 =~ Q4 + Q5 + Q6 + Q7 + Q11
-F2 =~ Q8 + Q9 + Q10
-Q5 ~~ Q11
-"
-cfa.model1 = cfa(model1, data = data.cfa)
-summary(cfa.model1, fit.measures=T, standardized=T)
-fitMeasures(cfa.model1, c("aic", "bic"))
-fitMeasures(cfa.model, c("aic", "bic"))
-# Very small improvement in AIC, BIC. RMSEA UL90% CI still > .08
-mi1 = modificationIndices(cfa.model1)
-subset(mi1, mi>5)
-# mi not helpful
-sr1 = residuals(cfa.model1, type="standardized")
-sr1
-# Still very high SR Q5-Q8
-
-# Rev 2: RMV Q5?
-# SR = 
-model2 = "
-F1 =~ Q4 + Q6 + Q7 + Q11
-F2 =~ Q8 + Q9 + Q10
-"
-cfa.model2 = cfa(model2, data = data.cfa)
-summary(cfa.model2, fit.measures=T, standardized=T)
-fitMeasures(cfa.model, c("aic", "bic"))
-fitMeasures(cfa.model1, c("aic", "bic"))
-fitMeasures(cfa.model2, c("aic", "bic"))
-# Improves: AIC, BIC, & other fit indices. RMSEA UL90% CI still > .08
-mi2 = modificationIndices(cfa.model2)
-subset(mi2, mi>5)
-# mi not helpful
-sr2 = residuals(cfa.model2, type="standardized")
-sr2
-# No more SR problem
-
-# Rev 3: RMV Q8?
-# SR = 
-model3 = "
-F1 =~ Q4 + Q5 + Q6 + Q7 + Q11
-F2 =~ Q9 + Q10
-"
-cfa.model3 = cfa(model3, data = data.cfa)
-summary(cfa.model3, fit.measures=T, standardized=T)
-# Q9 loading > 1, Heywood case! Not an acceptable solution.
-
-# It is reasonable to just accept model2 as it is.
-
-# Extra testing...
-# Can improve model2 further?
-# Rev 2a: RMV Q11?
-# Low loading
-# SR = 
-model2a = "
-F1 =~ Q4 + Q6 + Q7
-F2 =~ Q8 + Q9 + Q10
-"
-cfa.model2a = cfa(model2a, data = data.cfa)
-summary(cfa.model2a, fit.measures=T, standardized=T)
-# Worsen CFI, TLI & RMSEA
-
-# Rev 2b:
-# Q9 ~~ Q10
-# Low loading
-# SR = 
-model2b = "
-F1 =~ Q4 + Q6 + Q7 + Q11
-F2 =~ Q8 + Q9 + Q10
+PA1 =~ Q4 + Q5 + Q6 + Q7 + Q11
+PA2 =~ Q8 + Q9 + Q10
 Q9 ~~ Q10
 "
-cfa.model2b = cfa(model2b, data = data.cfa)
-summary(cfa.model2b, fit.measures=T, standardized=T)
-# Heywood case, again to Q8
+cfa.model1 = cfa(model1, data = data.cfa, estimator = "MLR")
+summary(cfa.model1, fit.measures=T, standardized=T)
+# The upper 90% CI of RMSEA is smaller, but
+# we have a serious Heywood case here! Q8 FL = 1.522.
+# Thus this solution is not acceptable.
 
-# Reliability
-reliability(cfa.model2)  # Raykov's rho is the omega
-# omega  F1 = 0.8077253 F2 = 0.8357834
+# _Revision_ 2: Remove Q5?
 
-# path diagram
-semPaths(cfa.model2, 'path', 'std', style = 'lisrel', 
-         edge.color = 'black', intercepts = F)
+# Because Q5 has two SRs with other Q8 and Q11.
+model2 = "
+PA1 =~ Q4 + Q6 + Q7 + Q11
+PA2 =~ Q8 + Q9 + Q10
+"
+cfa.model2 = cfa(model2, data = data.cfa, estimator = "MLR")
+summary(cfa.model2, fit.measures=T, standardized=T)
+# The upper 90% CI of RMSEA has reduced from 0.112 to 0.104.
+# The FLs and factor correlation are acceptable. No Heywood's case.
+mi2 = modificationIndices(cfa.model2)
+subset(mi2, mi.scaled>5)
+sr2 = residuals(cfa.model2, type="standardized"); sr2
+# There are no more SRs > 2.56.
+# So we may stop at "model2",
+# although the upper 90% CI of RMSEA is still > 0.08,
+# but there is no more localized areas of misfit by SR.
+
+# **Model-to-model comparison**
+
+# Because "model2" is not nested in "model",
+# we compare mainly by AIC and BIC,
+# and additionally by X2 difference
+# (in our case scaled X2 difference),
+anova(cfa.model, cfa.model2, method = "satorra.bentler.2010")
+# Clearly, the AIC and BIC are reduced
+# ("model2" [without Q5] vs "model" [with Q5]).
+# The X2 difference is significant, which indicates an improvement in model fit.
+
+# Construct reliability
+
+# **Raykov's rho**
+
+# Look at the `omega` row in the output,
+rel.model2 = reliability(cfa.model2)
+print(rel.model2, digits = 3)
+# Raykov's rho (the `omega`):
+# PA1 = 0.808,
+# PA2 = 0.836.
+# Both factors are reliable.
+
+# CI of Omega
+library(MBESS)
+s_model2 = lavInspect(cfa.model2, "sampstat")$cov  # sample cov matrix
+n_model2 = lavInspect(cfa.model2, "nobs")  # n = 150
+# PA1
+pa1 = c("Q4", "Q6", "Q7", "Q11")
+s_model2_pa1 = s_model2[pa1, pa1]
+ci.reliability(S = s_model2_pa1, N = n_model2, type = "omega")
+# PA2
+pa2 = c("Q8", "Q9", "Q10")
+s_model2_pa2 = s_model2[pa2, pa2]
+ci.reliability(S = s_model2_pa2, N = n_model2, type = "omega")
+
+# Path diagram
+semPaths(cfa.model2, 'path', 'std', style = 'lisrel', edge.color = 'black', intercepts = F)

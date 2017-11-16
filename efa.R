@@ -1,10 +1,8 @@
-#--------------------------------------------------------
-# Exploratory factor analysis and Cronbach's alpha (DrPH) 
-#-------------------------------------------------------
-
-# LEARNING OUTCOMES
-# 1. Able to perform EFA
-# 2. Able to obtain Cronbach's alpha
+#-------------------------------------------------
+# Exploratory factor analysis and Cronbach's alpha
+#-------------------------------------------------
+# Author: Wan Nor Arifin
+#-------------------------------------------------
 
 # Libraries
 library(foreign)
@@ -15,8 +13,8 @@ library(MVN)
 data = read.spss("Attitude_Statistics v3.sav", use.value.labels = F, to.data.frame = T)
 head(data)
 data1 = data[-1]  # no ID
-head(data1)
 dim(data1)
+head(data1)
 
 # Exploratory factor analysis
 #----------------------------
@@ -24,17 +22,20 @@ dim(data1)
 # Preliminary steps
 ## Descriptive statistics:
 ### Check minimum-maximum values per item.
-describe(data1)  # no ID
+describe(data1)
 ### n(%) of response to options per item.
 response.frequencies(data1)
 ## Normality of data
 ### Univariate normality
-par(mfrow = c(3,4))  # 3 rows x 4 columns
+# Histograms
+par(mfrow = c(3,4))  # set view to 3 rows & 4 columns
 apply(data1, 2, hist)
-par(mfrow = c(1,1))  # reset the plot
+par(mfrow = c(1,1))  # set to default full view
+# multi.hist(data1)  # at times, error
+# Shapiro Wilk's test
 apply(data1, 2, shapiro.test)
 ### Multivariate normality
-mardiaTest(data1, qqplot = T)
+mardiaTest(data1, qqplot = TRUE)
 
 # Step 1
 ## 1. Check suitability of data for analysis
@@ -59,8 +60,7 @@ print(fa)
 print(fa, cut = .3, digits = 3)
 # h2 = communalities
 # u2 = error variance
-fa$e.values # initial eigenvalues
-fa$values  # extraction eigenvalues, after fixing no of factor
+
 ## Assess the results:
 ## 1. To judge quality of items. Remove poor performing items.
 # Communality? Q1 < Q12 < Q2 < .25
@@ -98,14 +98,13 @@ print(fa4, cut = .3, digits = 3)
 names(data1)
 PA1 = c("Q4","Q5","Q6","Q7","Q11")
 PA2 = c("Q8","Q9","Q10")
+
 alpha.pa1 = alpha(data1[PA1])
 print(alpha.pa1)
-alpha.pa2 = alpha(data1[PA2])
-print(alpha.pa2)
-# Comments?
 # r.drop = Corrected item-total correlation
 # look at raw_alpha for Cronbach's alpha if item deleted
-# Squared Multiple Correlation not reported in R, have to calculate manually
-smc.Q4 = lm(Q4 ~ Q5 + Q6 + Q7 + Q11, data1)  # regress Q4 on the rest of items
-summary(smc.Q4)  # smc = Multiple R-squared:  0.5101
-# repeat this for the rest of items.
+smc(data1[c(4,5,6,7,11)])  # Squared Multiple Correlation (smc)
+
+alpha.pa2 = alpha(data1[PA2])
+print(alpha.pa2)
+smc(data1[c(8,9,10)])  # Squared Multiple Correlation (smc)
