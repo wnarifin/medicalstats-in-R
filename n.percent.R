@@ -1,6 +1,13 @@
+#------------------------------------------------------------
 # n.percent
-# A convenient function to come out with n (%) side by side
+# 
+# Description:
+# A convenient function to come out with variable name, 
+# labels and n (%) side by side
+#------------------------------------------------------------
 # Author: Wan Nor Arifin
+#------------------------------------------------------------
+
 library(plyr)
 n.percent = function(des) {
   x = 1; for(x in 1:dim(des)[2]) { 
@@ -12,3 +19,13 @@ n.percent = function(des) {
     cat("\n")
   }
 }
+
+# Usage:
+# n.percent(data.frame)
+# 
+# Examples:
+# n.percent(esoph[1:3])  # will work
+# n.percent(esoph[1])  # will work
+# n.percent(esoph$agegp)  # will not work
+# n.percent(esoph[, 1:3])  # will not work
+

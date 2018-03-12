@@ -1,15 +1,14 @@
-#--------------------------------------------------------
-# A Short Course on Data Analysis Using R Software (2017)
-#--------------------------------------------------------
-# Wan Nor Arifin
-#--------------------------------------------------------
+#------------------------------------------------------------
 # Exploratory data analysis
-#--------------------------------------------------------
+#------------------------------------------------------------
+# Author: Wan Nor Arifin
+#------------------------------------------------------------
+
 
 # Read data
 
 library(foreign)
-data.sav = read.spss("cholest.sav", to.data.frame = T)
+data.sav = read.spss("data/cholest.sav", to.data.frame = T)
 str(data.sav)
 
 # Basic descriptive statistics
@@ -54,16 +53,21 @@ by(data.sav[, c("chol","age", "exercise")], data.sav$categ, describe)
 describeBy(data.sav[, c("chol","age", "exercise")], data.sav$sex)
 describeBy(data.sav[, c("chol","age", "exercise")], data.sav$categ)
 
-# Cross-tabulation
+## Categorical
+# - Cross-tabulation
 tab = table(Category = data.sav$categ, Gender = data.sav$sex); tab  # count
 per = prop.table(table(Category = data.sav$categ, Gender = data.sav$sex))*100
 per  # % 
 cbind(tab, per)
 addmargins(tab)  # marginal counts
-# nicer view
+# nicer view, % next to the count
 cell = paste0(tab, " (", per, "%)")
 str(tab)
-tab1 = tab
-tab1[] = cell[]
+tab1 = tab  # to give tab1 same dimension to tab
+tab1[] = cell[]  # then copy all contents from cell to tab1
 tab1
 ftable(tab1)  # nicer 'flat' view
+
+# - using by and aggregate
+aggregate(categ ~ sex, summary, data = data.sav)
+by(data.sav$categ, data.sav$sex, summary)

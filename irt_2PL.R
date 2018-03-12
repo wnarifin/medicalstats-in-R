@@ -1,5 +1,8 @@
-# Wan Nor Arifin
-#===============
+#------------------------------------------------------------
+# Item Response Theory Analysis: 2-Parameter Logistic
+#------------------------------------------------------------
+# Author: Wan Nor Arifin
+#------------------------------------------------------------
 
 # Introduction to IRT using R
 # Our focus is on 2PL model only

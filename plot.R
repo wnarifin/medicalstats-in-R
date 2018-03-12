@@ -1,4 +1,10 @@
-library(semPlot)
+#------------------------------------------------------------
+# Draw path diagrams withour data
+#------------------------------------------------------------
+# Author: Wan Nor Arifin
+#------------------------------------------------------------
+
+library(semPlot)  # must use semPlot version 1.0.1
 
 # correlation
 model = "
@@ -32,3 +38,9 @@ Z ~ a*X
 Y ~ c*X + b*Z
 "
 semPaths(model4, what = "path", whatLabels = "name", edge.color = "black", residuals = F, layout = "spring", sizeMan = 7)
+
+# moderation
+model5 = "
+Y ~ c*X.M + b*M + a*X
+"
+semPaths(model5, what = "path", whatLabels = "name", edge.color = "black", residuals = F, sizeMan = 7, rotation = 2)
