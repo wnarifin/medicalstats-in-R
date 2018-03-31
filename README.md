@@ -1,5 +1,5 @@
 # medicalstats_in_R
-Sharing of codes for common analyses in medical statistics using R
+In this repository, I share a number of R scripts that I usually use for statistical analyses in medical statistics.
 
 The the R scripts and their descriptions are listed below. Each of the scripts are well commented, there shouldn't be any problem to follow the steps in the scripts.
 
