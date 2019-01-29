@@ -42,7 +42,7 @@ poisgof(model.acc)  # fit well, based on chi-square test on the residual devianc
 #   - standardized residuals
 sr = rstandard(model.acc)
 sr[abs(sr) > 1.96]
-#   - predicted count vs fitted values
+#   - observed count vs fitted values
 fitted.acc = model.acc$fitted
 data.frame(acc, fitted.acc)[names(sr[abs(sr) > 1.96]),]  # look at the discrepancies
 # Summary with RR

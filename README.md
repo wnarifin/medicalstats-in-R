@@ -6,6 +6,7 @@ The the R scripts and their descriptions are listed below. Each of the scripts a
 Name    | Description
 --      | --
 data/   | Data folder
+functions/ | Contains a number of useful custom made functions
 cfa.R   | Confirmatory factor analysis
 corr.R  | Correlations
 datamx.R    | Data management

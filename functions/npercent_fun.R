@@ -1,5 +1,5 @@
 #------------------------------------------------------------
-# n.percent
+# npercent
 # 
 # Description:
 # A convenient function to come out with variable name, 
@@ -14,7 +14,7 @@ n.percent = function(des) {
     print( summarise( des, Variable = c(names(des[x]),rep("-", length(table(des[x], useNA="ifany"))-1)),
                       Label = as.data.frame(table(des[x], useNA="ifany"))$Var1,
                       n = as.data.frame(table(des[x], useNA="ifany"))$Freq,
-                      Proportion = prop.table(table(des[x], useNA="ifany")))
+                      Percent = 100*prop.table(table(des[x], useNA="ifany")))
            , row.names=F, digits=3 )  # side-by-side n & %
     cat("\n")
   }
