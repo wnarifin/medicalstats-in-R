@@ -23,5 +23,6 @@ tbl2raw = function(tbl_xy){
   y = rep(1:dim(tbl_xy)[2], times = margin.table(tbl_xy, 2))
   x = rep(rep(1:dim(tbl_xy)[1], dim(tbl_xy)[2]), as.numeric(tbl_xy))
   xy = data.frame(x, y)
+  colnames(xy) = names(dimnames(tbl_xy))
   return(xy)
 }
