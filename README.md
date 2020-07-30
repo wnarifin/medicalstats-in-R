@@ -16,8 +16,8 @@ intro.R | Getting started with R
 irt_2PL.R   | Item Response Theory Analysis: 2-Parameter Logistic
 linear.R    | Linear regression
 mean.R  | Comparing means
-n.percent.R | A convenient function to come out with variable name, labels and n (%) side by side
 plot.R  | Draw path diagrams without data
 poisson.R   | Poisson Regression
 prop.R  | Comparing proportions
 sem.R   | Structural Equation Modeling (Basics)
+
