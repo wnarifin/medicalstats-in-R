@@ -13,7 +13,7 @@ desc_cat = function(data, percent = TRUE) {
     prop = as.data.frame(prop.table(table(data[i])))
     var_name = c(names(data[i]), rep("-", length(table(data[i]))-1))
     df = data.frame(Variable = var_name,
-                     Label = n$Var1,
+                     Label = n[1],
                      n = n$Freq)
     if(!percent) {df$Proportion = prop$Freq} else {df$Percent = prop$Freq*100}
     list[[i]] = df
