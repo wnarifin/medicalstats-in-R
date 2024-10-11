@@ -1,7 +1,7 @@
 # Sample size calculator for SEM
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 # Author: Wan Nor Arifin
-# Last update: 2024-08-06
+# Last update: 2024-10-11
 #
 # Functions:
 # df_model(n_item, n_factor)  # df for model
@@ -45,10 +45,12 @@ df_model = function(n_item, n_factor) {
 }
 
 # Calculate baseline df
-df_baseline = function(n_item) {
+df_baseline = function(n_item, n_factor) {  # added back n_factor
   n_item = n_item
+  n_factor = n_factor
+  n_factor = n_cor = 0  # added for clarity, factor var, factor cor = 0
   b = n_item*(n_item + 1)/2
-  a_ = 0 + n_item + 0 + 0  # FL, factor var, factor cor = 0, num error var = num indicator var
+  a_ = 0 + n_item + n_factor + n_cor  # FL, factor var, factor cor = 0, num error var = num indicator var
   dfb = b - a_
   return(dfb)
 }
